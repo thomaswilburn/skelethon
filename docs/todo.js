@@ -13,14 +13,14 @@ class Todo extends Model {
     done: false
   }
 
-  // our model has a special handler for destroying
-  // Backbone models have this by default, but we don't yet.
-  destroy() {
-    this.dispatchEvent(new CustomEvent("destroyed"));
-  }
-
   // This will create a <todo-view> when the model is constructed
   static viewTag = "todo-view";
+
+  // our collection will see this event and remove the model
+  destroy() {
+    this.dispatchEvent(new Event("destroyed"));
+  }
+
 }
 
 // our view is a custom element associated with a model type
