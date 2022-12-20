@@ -7,6 +7,8 @@ Collection is basically just an evented array. It dispatches "revised" events wh
 */
 
 export class Collection extends Array {
+
+  static events = {};
   
   constructor() {
     super(0);
@@ -15,6 +17,13 @@ export class Collection extends Array {
         this[b] = this[b].bind(this);
       }
     }
+    // also bind for subscriptions
+    if (new.target.events) {
+      for (var method of Object.values(new.target.events)) {
+        this[method] = this[method].bind(this);
+      }
+    }
+    this.addEventListener("revised", this.#autoSubscription.bind(this));
   }
 
   // since we don't have multiple inheritance, we have to write our own event setup
@@ -42,6 +51,37 @@ export class Collection extends Array {
       if (registration.once) this.removeEventListener(type, registration.listener);
     }
   }
+
+  #autoSubscription(e) {
+    var events = Object.entries(this.constructor.events);
+    for (var added of e.added) {
+      for (var [event, method] of events) {
+        added.item.addEventListener(event, this[method]);
+      }
+    }
+    for (var removed of e.removed) {
+      for (var [event, method] of events) {
+        removed.item.removeEventListener(event, this[method]);
+      }
+    }
+  }
+
+  // Skelethon-specific functions
+
+  add(item) {
+    var Model = this.constructor.model;
+    if (Model && !(item instanceof Model)) {
+      item = new Model(item);
+    }
+    this.push(item);
+  }
+
+  remove(item) {
+    var index = this.indexOf(item);
+    this.splice(index, 1);
+  }
+
+  // array wrappers
 
   fill(value, start, end) {
     var revision = new RevisionEvent();

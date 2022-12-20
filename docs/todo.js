@@ -1,8 +1,8 @@
 // published
-// import { Collection, View, Model } from "./skelethon.js";
+import { Collection, View, Model } from "./skelethon.js";
 
 // for local testing
-import { Collection, View, Model } from "../index.js";
+// import { Collection, View, Model } from "../index.js";
 
 // Our basic model for an item.
 class Todo extends Model {
@@ -101,39 +101,20 @@ class TodoView extends View {
 }
 TodoView.registerAs("todo-view");
 
-// the TodoCollection gives us some utilities for automatically creating/removing items
-// it also subscribes to their events, manually
-// Backbone did this automatically, we don't yet.
 class TodoCollection extends Collection {
-  static boundMethods = ["republish", "destroyItem"];
 
-  // lets us add a Model from a data object
-  addItem(data) {
-    var item = new Todo(data);
-    item.addEventListener("revised", this.republish);
-    item.addEventListener("destroyed", this.destroyItem);
-    this.push(item);
-    this.sortByCompletion();
-  }
+  // add() and remove() will use this automatically
+  static model = Todo;
 
-  // lets us remove an item
-  removeItem(item) {
-    var index = this.indexOf(item);
-    item.removeEventListener("revised", this.republish);
-    item.removeEventListener("destroyed", this.destroyItem);
-    this.splice(index, 1);
-  }
+  // the collection will automatically subscribe to these
+  static events = {
+    "revised": "sortByCompletion",
+    "destroyed": "destroyItem"
+  };
 
   // removes items from the event subscription
   destroyItem(e) {
-    this.removeItem(e.target);
-  }
-
-  // republishes revisions from the models
-  // does so by sorting
-  // probably too clever
-  republish(e) {
-    this.sortByCompletion();
+    this.remove(e.target);
   }
 
   // default unchecked then checked, with alpha sort in each
@@ -179,7 +160,7 @@ class App extends View {
     ];
     this.items = new TodoCollection();
     for (var item of data) {
-      this.items.addItem(item);
+      this.items.add(item);
     }
     this.items.addEventListener("revised", this.whenRevised);
   }
@@ -206,7 +187,7 @@ class App extends View {
   // when the user fills out the form and cliks "add todo"
   addItem() {
     var { taskLabel } = this.illuminate();
-    this.items.addItem({ label: taskLabel.value.trim() || "New task" });
+    this.items.add({ label: taskLabel.value.trim() || "New task" });
     taskLabel.value = "";
   }
 
