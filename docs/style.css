@@ -1,0 +1,118 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  min-height: 100%;
+  background: linear-gradient(to bottom, white, #EEE);
+}
+
+todo-app {
+  display: block;
+  margin: 20px auto;
+  max-width: 400px;
+  background: white;
+  border: 1px solid #DDD;
+  box-shadow: 0 4px 8px -4px #0003;
+  font-family: sans-serif;
+}
+
+todo-app hr {
+  margin: 8px auto;
+  border: none;
+  border-top: 1px solid #888;
+  max-width: 100px;
+}
+
+todo-app .add-panel {
+  display: flex;
+  padding: 8px 20px;
+}
+
+todo-app .add-panel input {
+  flex: 1;
+}
+
+todo-app .counter {
+  background: #CEC;
+  padding: 20px;
+}
+
+todo-app ul {
+  margin: 0;
+  padding: 20px;
+  list-style-type: none;
+}
+
+todo-app button {
+  color: white;
+  --bg-color: black;
+  background: var(--bg-color);
+  border: none;
+  border-radius: 10px;
+  margin-left: 8px;
+  font-weight: bold;
+  padding: 4px;
+  text-transform: uppercase;
+  opacity: .5;
+}
+
+todo-app :is(button:hover, button:focus) {
+  opacity: 1;
+}
+
+li.todo {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+li.todo input[type="checkbox"] {
+  margin-right: 8px;
+  accent-color: #5C5;
+}
+
+li.todo label {
+  flex: 1;
+}
+
+li.todo input.edit-label {
+  display: none;
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid black;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  margin: 0;
+}
+
+li.todo.editing input.edit-label {
+  display: block;
+}
+
+li.todo.editing label {
+  display: none;
+}
+
+li.todo button.edit:before {
+  content: "Edit";
+}
+
+li.todo.editing button.edit:before {
+  content: "Done";
+}
+
+li.todo button.cancel {
+  display: none;
+}
+
+li.todo.editing button.cancel {
+  display: block;
+  --bg-color: #500;
+}

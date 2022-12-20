@@ -1,0 +1,16 @@
+{
+  "name": "skelethon",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "compile": "rollup -i index.js -o docs/skelethon.js --no-treeshake --format es"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "description": "",
+  "dependencies": {
+    "rollup": "^3.7.5"
+  }
+}
