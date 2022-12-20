@@ -1,8 +1,8 @@
 // published
-import { Collection, View, Model } from "./skelethon.js";
+// import { Collection, View, Model } from "./skelethon.js";
 
 // for local testing
-// import { Collection, View, Model } from "../index.js";
+import { Collection, View, Model } from "../index.js";
 
 // Our basic model for an item.
 class Todo extends Model {
@@ -38,21 +38,25 @@ class TodoView extends View {
   <button class="destroy" ref="destroy">&times;</button>
   `;
 
-  // automatic method binding
-  static boundMethods = ["toggleEditing", "updateState", "cancelEditing", "destroy"];
+  // register for delegated events
+  static events = {
+    "change input[type=checkbox]": "updateState",
+    "click button.edit": "toggleEditing",
+    "click button.cancel": "cancelEditing",
+    "click button.destroy": "destroy"
+  }
 
-  // overriding illuminate() lets us add event listeners to the template
-  illuminate() {
-    var elements = super.illuminate();
-    var { checkbox, editLabel, editToggle, label, cancel, destroy } = elements;
+  // init flag
+  #associated = false;
+
+  connectedCallback() {
+    if (this.#associated) return;
+    // associate the label and checkbox using the incremental ID
+    var { label, checkbox } = this.illuminate();
     var forID = `todo-item-${guid++}`;
     label.htmlFor = forID;
     checkbox.id = forID;
-    checkbox.addEventListener("change", this.updateState);
-    editToggle.addEventListener("click", this.toggleEditing);
-    cancel.addEventListener("click", this.cancelEditing);
-    destroy.addEventListener("click", this.destroy);
-    return elements;
+    this.#associated = true;
   }
 
   // called when the user clicks "edit" or "done"
@@ -159,7 +163,11 @@ class App extends View {
 </div>
   `;
 
-  static boundMethods = ["whenRevised", "addItem"];
+  static events = {
+    "click .add-todo": "addItem"
+  }
+
+  static boundMethods = ["whenRevised"];
 
   constructor() {
     super();
@@ -179,12 +187,6 @@ class App extends View {
   // render on startup
   connectedCallback() {
     this.render();
-  }
-
-  illuminate() {
-    var elements = super.illuminate();
-    elements.add.addEventListener("click", this.addItem);
-    return elements;
   }
 
   render() {

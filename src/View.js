@@ -15,6 +15,15 @@ export class View extends HTMLElement {
         this[m] = this[m].bind(this);
       }
     }
+    if (new.target.events) {
+      for (var key in new.target.events) {
+        var space = key.indexOf(" ");
+        var type = key.slice(0, space);
+        var selector = key.slice(space + 1);
+        var method = new.target.events[key];
+        this.addEventListener(type, this.#delegateEvent.bind(this, selector, method));
+      }
+    }
   }
 
   illuminate() {
@@ -29,6 +38,13 @@ export class View extends HTMLElement {
   render(data) {
     // override this!
     this.illuminate();
+  }
+
+  #delegateEvent(selector, method, e) {
+    var closest = e.target.closest(selector);
+    if (this.contains(closest)) {
+      this[method](e);
+    }
   }
 
   static reorderChildren(container, ordered) {
