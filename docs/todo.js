@@ -159,9 +159,7 @@ class App extends View {
       { label: "Purchase feeble cable access show and exploit it", done: true }
     ];
     this.items = new TodoCollection();
-    for (var item of data) {
-      this.items.add(item);
-    }
+    this.items.reset(data);
     this.items.addEventListener("revised", this.whenRevised);
   }
 

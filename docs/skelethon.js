@@ -113,11 +113,13 @@ class Collection extends Array {
     var events = Object.entries(this.constructor.events);
     for (var added of e.added) {
       for (var [event, method] of events) {
+        if (!added.item.addEventListener) continue;
         added.item.addEventListener(event, this[method]);
       }
     }
     for (var removed of e.removed) {
       for (var [event, method] of events) {
+        if (!removed.item.removeEventListener) continue;
         removed.item.removeEventListener(event, this[method]);
       }
     }
@@ -154,10 +156,13 @@ class Collection extends Array {
 
   reset(values) {
     var removed = this.slice();
-    var added = values.slice();
     this.length = 0;
+    var Model = this.constructor.model;
+    if (Model) {
+      values = values.map(v => v instanceof Model ? v : new Model(v));
+    }
     super.push(...values);
-    var revision = new RevisionEvent().markAdded(added, this).markRemoved(removed, this);
+    var revision = new RevisionEvent().markAdded(values, this).markRemoved(removed, this);
     this.dispatchEvent(revision);
   }
 
@@ -176,10 +181,11 @@ class Collection extends Array {
   }
 
   push(...items) {
-    super.push(...items);
+    var value = super.push(...items);
     var revision = new RevisionEvent();
     revision.markAdded(items, this);
     this.dispatchEvent(revision);
+    return value;
   }
 
   pop() {
@@ -187,6 +193,7 @@ class Collection extends Array {
     var revision = new RevisionEvent();
     revision.markItemRemoved(item, this);
     this.dispatchEvent(revision);
+    return item;
   }
 
   shift() {
@@ -194,13 +201,15 @@ class Collection extends Array {
     var revision = new RevisionEvent();
     revision.markItemRemoved(item, this);
     this.dispatchEvent(revision);
+    return item;
   }
 
   unshift(...items) {
-    super.unshift(...items);
+    var value = super.unshift(...items);
     var revision = new RevisionEvent();
     revision.markAdded(items, this);
     this.dispatchEvent(revision);
+    return value;
   }
 
 }
