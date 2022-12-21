@@ -130,7 +130,8 @@ class TodoCollection extends Collection {
   }
 }
 
-// the default app instantiates the app and manages storage
+// the default view instantiates the app and manages storage
+// I guess it's a controller? Kind of?
 class App extends View {
   static template = `
 <ul class="todo-list" ref="list"></ul>
@@ -152,14 +153,18 @@ class App extends View {
 
   constructor() {
     super();
+    // we'll persist this collection to localStorage as a demo
     var saved = localStorage.getItem("todo-storage");
     var data = saved ? JSON.parse(saved) : [
       { label: "Walk dog" },
       { label: "Buy milk" },
       { label: "Purchase feeble cable access show and exploit it", done: true }
     ];
+    // .from() is a nice convenience here.
     this.items = TodoCollection.from(data);
+    // if items change or are altered, notify the view
     this.items.addEventListener("revised", this.whenRevised);
+    // item views re-render themselves, we don't worry about it here
   }
 
   // render on startup
@@ -169,26 +174,21 @@ class App extends View {
 
   render() {
     var elements = this.illuminate();
-    // for each item, if its view isn't in the DOM, add it/render
-    for (var item of this.items) {
-      if (!item.view.parentElement) {
-        item.view.render();
-        elements.list.append(item.view);
-      }
-    }
+    var views = this.items.map(m => m.view);
+    // reorderChildren() will also add nodes that aren't appended yet
+    View.reorderChildren(elements.list, views);
     // count the items, and match the sorted order in the DOM
     elements.count.innerHTML = this.items.filter(d => !d.data.done).length;
-    View.reorderChildren(elements.list, this.items.map(d => d.view));
   }
 
-  // when the user fills out the form and cliks "add todo"
+  // when the user fills out the form and clicks "add todo"
   addItem() {
     var { taskLabel } = this.illuminate();
     this.items.add({ label: taskLabel.value.trim() || "New task" });
     taskLabel.value = "";
   }
 
-  // this is called when the collection sees changes
+  // this is called when the collection mutates
   whenRevised() {
     this.render();
     // save to localhost
