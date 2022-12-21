@@ -158,8 +158,7 @@ class App extends View {
       { label: "Buy milk" },
       { label: "Purchase feeble cable access show and exploit it", done: true }
     ];
-    this.items = new TodoCollection();
-    this.items.reset(data);
+    this.items = TodoCollection.from(data);
     this.items.addEventListener("revised", this.whenRevised);
   }
 

@@ -26,6 +26,7 @@ export class Model extends EventTarget {
     if (viewTag) {
       this.view = document.createElement(viewTag);
       this.view.model = this;
+      this.enqueueRender();
     }
   }
 

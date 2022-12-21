@@ -76,14 +76,34 @@ export class Collection extends Array {
       item = new Model(item);
     }
     this.push(item);
+    return item;
   }
 
   remove(item) {
     var index = this.indexOf(item);
     this.splice(index, 1);
+    return item;
+  }
+  
+  reset(values) {
+    var removed = this.slice();
+    this.length = 0;
+    var Model = this.constructor.model;
+    if (Model) {
+      values = values.map(v => v instanceof Model ? v : new Model(v));
+    }
+    super.push(...values);
+    var revision = new RevisionEvent().markAdded(values, this).markRemoved(removed, this);
+    this.dispatchEvent(revision);
   }
 
   // array wrappers
+
+  static from(iterable) {
+    var collection = new this();
+    collection.reset(iterable);
+    return collection;
+  }
 
   fill(value, start, end) {
     var revision = new RevisionEvent();
@@ -94,18 +114,6 @@ export class Collection extends Array {
     if (removed.length) {
       revision.markRemoved(removed);
     }
-    this.dispatchEvent(revision);
-  }
-
-  reset(values) {
-    var removed = this.slice();
-    this.length = 0;
-    var Model = this.constructor.model;
-    if (Model) {
-      values = values.map(v => v instanceof Model ? v : new Model(v));
-    }
-    super.push(...values);
-    var revision = new RevisionEvent().markAdded(values, this).markRemoved(removed, this);
     this.dispatchEvent(revision);
   }
 
