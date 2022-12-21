@@ -118,6 +118,8 @@ class TodoCollection extends Collection {
   }
 
   // default unchecked then checked, with alpha sort in each
+  // this collection is effectively self-sorting, since any
+  // model revision event triggers a re-sort
   sortByCompletion() {
     this.sort(function(a, b) {
       if (a.data.done != b.data.done) {
@@ -177,7 +179,7 @@ class App extends View {
     var views = this.items.map(m => m.view);
     // reorderChildren() will also add nodes that aren't appended yet
     View.reorderChildren(elements.list, views);
-    // count the items, and match the sorted order in the DOM
+    // count the items
     elements.count.innerHTML = this.items.filter(d => !d.data.done).length;
   }
 
